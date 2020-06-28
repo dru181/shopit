@@ -1,0 +1,171 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div style="text-align: center;">
+      <div class="row" style="display: inline-block; width: 50%;">
+        <div class="input-group no-border">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Input food item"
+            matInput
+            [(ngModel)]="newItem"
+            [formControl]="myControl"
+            required
+            [matAutocomplete]="auto"
+          />
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            [displayWith]="getDisplayFn()"
+          >
+            <mat-option
+              *ngFor="let option of filteredOptions | async"
+              [value]="option"
+              (onSelect)="selected(option)"
+            >
+              {{ option.name }}
+            </mat-option>
+          </mat-autocomplete>
+          <button
+            mat-raised-button
+            type="submit"
+            class="btn btn-white btn-round btn-just-icon"
+            (click)="pushItem(option)"
+          >
+            <div class="ripple-container">
+              <i class="material-icons">send</i>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12 col-md-12">
+        <div class="card">
+          <div class="card-header card-header-warning">
+            <h4 class="card-title">Your shopping list</h4>
+            <p class="card-category"></p>
+          </div>
+          <div class="card-body table-responsive" scrollY="true" id="myFixZone">
+            <ion-list #list>
+              <ion-item-sliding *ngFor="let i of items">
+                <ion-item>
+                  <ion-thumbnail slot="start">
+                    <ion-img [src]="i.image_url"></ion-img>
+                  </ion-thumbnail>
+                  <ion-label>
+                    <h3>
+                      {{ i.name }}
+                    </h3>
+                    <p>Quantity: {{ i.quantity }}</p>
+                  </ion-label>
+                </ion-item>
+
+                <ion-item-options side="start">
+                  <ion-item-option color="secondary" (click)="add_quantity(i)">
+                    Add 1
+                  </ion-item-option>
+                </ion-item-options>
+                <ion-item-options side="end">
+                  <ion-item-option color="danger" (click)="remove(i)"
+                    >Remove 1</ion-item-option
+                  >
+                </ion-item-options>
+              </ion-item-sliding>
+            </ion-list>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <div class="row" style="display: inline-block;">
+        <button
+          mat-raised-button
+          type="submit"
+          class="btn btn-warning pull-right"
+          (click)="recommend()"
+        >
+          Recommend me recipes!
+        </button>
+      </div>
+    </div>
+
+    <h2>You can make...</h2>
+    <div *ngIf="loading">
+      <div style="text-align: center;">
+        <div class="loader"></div>
+      </div>
+    </div>
+
+    <div *ngFor="let recipe of recipes">
+      <div class="col-md-12">
+        <div class="card card-stats">
+          <div class="card-header card-header-warning card-header-icon">
+            <div class="card-icon">
+              <i class="material-icons">fastfood</i>
+            </div>
+            <p class="card-category"></p>
+            <h3
+              class="card-title"
+              style="text-align: center; margin-top: 30px;"
+            >
+              {{ recipe.title }}
+            </h3>
+          </div>
+          <div class="card-footer">
+            <div class="row">
+              <div class="stats" style="padding: 10px;">
+                {{ recipe.instructions }}
+              </div>
+            </div>
+          </div>
+
+          <div *ngFor="let items of recipe.items; let i = index">
+            <mat-expansion-panel hideToggle="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Required ingredient {{ i + 1 }}
+                </mat-panel-title>
+                <mat-panel-description>
+                  {{ items[0].category }}
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div *ngIf="items[0].name; else msgTemplate">
+                <ion-list *ngFor="let i of items">
+                  <ion-item button (click)="addtoList(recipe, items, i)">
+                    <ion-thumbnail slot="start">
+                      <ion-img [src]="i.image_url"></ion-img>
+                    </ion-thumbnail>
+                    <ion-label>
+                      <h3>
+                        {{ i.name }}
+                      </h3>
+                    </ion-label>
+                  </ion-item>
+                </ion-list>
+              </div>
+
+              <ng-template #msgTemplate>
+                <p>
+                  No product recommendation can be made, but you need "{{
+                    items[0].category
+                  }}" to complete this recipe!
+                </p>
+              </ng-template>
+            </mat-expansion-panel>
+          </div>
+
+          <div
+            *ngIf="recipe.items.length == 0"
+            class="alert alert-success"
+            style="margin: 10px;"
+          >
+            <span> <b> Success - </b> You can make this recipe!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
