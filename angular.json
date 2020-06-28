@@ -169,6 +169,10 @@
               "browserTarget": "material-dashboard-angular:build:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {}
         }
       }
     },
