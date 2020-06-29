@@ -26,13 +26,16 @@ export class ListComponent implements OnInit {
   @ViewChild("list") list: IonList;
   @Input() value: any;
   @Output() valueChange = new EventEmitter();
+  totalPrice: number = 0;
   items: IFoodItem[] = [];
   newItem: IFoodItem;
   filteredOptions: BehaviorSubject<any[]> = new BehaviorSubject(undefined);
   recipes: IRecipe[] = [];
   ingredients: string[][] = [];
   myControl = new FormControl();
+  total;
   loading = false;
+  empty = false;
 
   constructor(private listService: ListService, private cookie: CookieService) {
     this.cookie.set("userid", this.makeid(5));
@@ -65,6 +68,7 @@ export class ListComponent implements OnInit {
   }
 
   public addtoList(recipe: IRecipe, items: IFoodItem[], item: IFoodItem) {
+    this.totalPrice += item.value;
     for (let i = 0; i < this.recipes.length; i++) {
       if (this.recipes[i].id == recipe.id) {
         const index: number = this.recipes[i].items.indexOf(items);
@@ -79,12 +83,17 @@ export class ListComponent implements OnInit {
 
     for (let i = 0; i < this.items.length; i++) {
       if (item.id == this.items[i].id) {
-        this.items[i].quantity++;
+        const old_quantity = this.items[i].quantity++;
+
+        this.items[i].value =
+          (this.items[i].quantity * this.items[i].value) / old_quantity;
+        this.updateTotalPrice();
         return;
       }
     }
     item.quantity = 1;
     this.items.push(item);
+    this.updateTotalPrice();
   }
 
   private addRecommendedItems(
@@ -125,6 +134,13 @@ export class ListComponent implements OnInit {
       .getRec(this.cookie.get("userid"))
       .pipe(finalize(() => (this.loading = false)))
       .subscribe((rec) => {
+        if (rec.length == 0) {
+          this.showNotification(
+            "danger",
+            "No recipe recommendation can be made! Try adding more products"
+          );
+        }
+
         for (let i = 0; i < rec.length; i++) {
           this.listService.getRecipe(rec[i].recipe).subscribe((recipe) => {
             this.recipes[i] = recipe;
@@ -142,14 +158,19 @@ export class ListComponent implements OnInit {
   }
 
   add_quantity(item) {
-    item.quantity++;
+    const old_quantity = item.quantity++;
+    item.value = (item.quantity * item.value) / old_quantity;
+    this.updateTotalPrice();
   }
 
   pushItem() {
     if (this.newItem.name != undefined) {
       for (let i = 0; i < this.items.length; i++) {
         if (this.newItem.id == this.items[i].id) {
-          this.items[i].quantity++;
+          const old_quantity = this.items[i].quantity++;
+          this.items[i].value =
+            (this.items[i].quantity * this.items[i].value) / old_quantity;
+          this.updateTotalPrice();
           this.newItem = undefined;
           return;
         }
@@ -158,18 +179,29 @@ export class ListComponent implements OnInit {
       this.newItem.quantity = 1;
       this.listService.putInCart(this.cookie.get("userid"), this.newItem.id);
       this.items.push(this.newItem);
+      this.updateTotalPrice();
       this.newItem = undefined;
       this.restart();
     }
   }
+  updateTotalPrice() {
+    let temp = 0;
+    for (let i = 0; i < this.items.length; i++) {
+      temp += this.items[i].value;
+    }
+    this.totalPrice = temp;
+  }
 
   remove(item) {
     if (item.quantity > 1) {
-      item.quantity--;
+      const old_quantity = item.quantity--;
+      item.value = (item.quantity * item.value) / old_quantity;
+      this.updateTotalPrice();
       return;
     }
 
     this.items.splice(this.items.indexOf(item), 1);
+    this.updateTotalPrice();
     this.list.closeSlidingItems();
     this.listService.deleteFromCart(this.cookie.get("userid"), item.id);
 

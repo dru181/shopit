@@ -31,3 +31,7 @@
 #myFixZone {
   height: 400px;
 }
+
+.main-content {
+  scroll-behavior: smooth;
+}

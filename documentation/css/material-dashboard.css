@@ -11368,7 +11368,7 @@ fieldset[disabled] .form-group .form-control {
   .badge.badge-danger {
     background-color: #f44336; }
   .badge.badge-rose {
-    background-color: #e91e63; }
+    background-color: #ff9800; }
   .badge.badge-default {
     background-color: #999999; }
 
@@ -13309,7 +13309,7 @@ h2.title {
   background-color: rgba(200, 200, 200, 0.2); }
 
 .fixed-plugin .badge-rose {
-  background-color: #e91e63; }
+  background-color: #f96332; }
 
 .fixed-plugin h5 {
   font-size: 14px;

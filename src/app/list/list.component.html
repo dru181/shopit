@@ -6,7 +6,7 @@
           <input
             type="text"
             class="form-control"
-            placeholder="Input food item"
+            placeholder="Input product name"
             matInput
             [(ngModel)]="newItem"
             [formControl]="myControl"
@@ -23,6 +23,7 @@
               (onSelect)="selected(option)"
             >
               {{ option.name }}
+              (€ {{ (option.value / 100).toFixed(2) }})
             </mat-option>
           </mat-autocomplete>
           <button
@@ -43,8 +44,9 @@
       <div class="col-lg-12 col-md-12">
         <div class="card">
           <div class="card-header card-header-warning">
-            <h4 class="card-title">Your shopping list</h4>
-            <p class="card-category"></p>
+            <h4 class="card-title">
+              Your shopping list (€ {{ (totalPrice / 100).toFixed(2) }})
+            </h4>
           </div>
           <div class="card-body table-responsive" scrollY="true" id="myFixZone">
             <ion-list #list>
@@ -53,11 +55,18 @@
                   <ion-thumbnail slot="start">
                     <ion-img [src]="i.image_url"></ion-img>
                   </ion-thumbnail>
-                  <ion-label>
-                    <h3>
-                      {{ i.name }}
-                    </h3>
-                    <p>Quantity: {{ i.quantity }}</p>
+                  <ion-label style="float: left; clear: none;">
+                    <div>
+                      <h2>
+                        {{ i.name }}
+                      </h2>
+                      <p>Quantity: {{ i.quantity }}</p>
+                    </div>
+                    <div>
+                      <h3 style="color: red;">
+                        € {{ (i.value / 100).toFixed(2) }}
+                      </h3>
+                    </div>
                   </ion-label>
                 </ion-item>
 
@@ -122,7 +131,7 @@
           </div>
 
           <div *ngFor="let items of recipe.items; let i = index">
-            <mat-expansion-panel hideToggle="true">
+            <mat-expansion-panel>
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   Required ingredient {{ i + 1 }}
@@ -139,9 +148,17 @@
                       <ion-img [src]="i.image_url"></ion-img>
                     </ion-thumbnail>
                     <ion-label>
-                      <h3>
-                        {{ i.name }}
-                      </h3>
+                      <div>
+                        <h2>
+                          {{ i.name }}
+                        </h2>
+                        <p>Quantity: {{ i.quantity }}</p>
+                      </div>
+                      <div>
+                        <h3 style="color: red;">
+                          € {{ (i.value / 100).toFixed(2) }}
+                        </h3>
+                      </div>
                     </ion-label>
                   </ion-item>
                 </ion-list>
